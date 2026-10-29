@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>TruthGuard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--ink:#12213f;--mut:#5b6b8a;--line:#d8e0ee;--navy:#0b3d91;--ok:#127a4b;--okbg:#e4f5ec;--bad:#b3261e;--badbg:#fdeceb;--warn:#8a5a00;--warnbg:#fff3d6;--sky:#e8f0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1426;--card:#142038;--ink:#e6ecf8;--mut:#93a3c4;--line:#27375a;--navy:#7fa8ff;--ok:#5fd39b;--okbg:#10382a;--bad:#ff8a80;--badbg:#401a1a;--warn:#f2c35b;--warnbg:#3b2f10;--sky:#18284a;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:18px 24px 6px}h1{font:700 34px/1 Georgia,"Times New Roman",serif;letter-spacing:.04em;color:var(--navy);margin:0}
+header p{margin:4px 0 0;color:var(--mut)}
+main{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:16px;padding:12px 24px 28px;max-width:1400px;margin:auto}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:12px}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+h2{font-size:16px;margin:0 0 10px;color:var(--navy)}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 3px}
+input,select,textarea,button{font:inherit;color:var(--ink)}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:6px;padding:7px 12px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--navy);outline-offset:1px}
+.go{background:var(--navy);color:#fff;border-color:var(--navy);width:100%;margin-top:12px;padding:10px;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .go{color:#0c1426}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chips button{font-size:13px;border-radius:99px;background:var(--sky)}
+.seg{display:flex;gap:6px}.seg button{flex:1;font-size:13px}.seg button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg button.on{color:#0c1426}}
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(max-width:700px){.pipe{grid-template-columns:1fr 1fr}}
+.ag{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12.5px;min-height:92px;background:var(--bg);transition:border-color .2s}
+.ag b{display:block;font-size:13px}.ag small{color:var(--mut)}
+.ag.run{border-color:var(--navy);box-shadow:0 0 0 2px var(--sky)}.ag.done{border-color:var(--ok)}.ag.flag{border-color:var(--bad)}
+.ag ul{margin:6px 0 0;padding-left:16px}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
+.b-ok{background:var(--okbg);color:var(--ok)}.b-bad{background:var(--badbg);color:var(--bad)}.b-warn{background:var(--warnbg);color:var(--warn)}.b-n{background:var(--sky);color:var(--navy)}
+.ans{font-size:20px;font-weight:650;margin:6px 0}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:700px){.cmp{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);border-radius:8px;padding:10px}.box.good{border-color:var(--ok);background:var(--okbg)}.box.badx{border-color:var(--bad);background:var(--badbg)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}
+.find{padding:8px 10px;border-radius:6px;margin:6px 0;font-size:13.5px}
+.tr{font-size:13px}.tr div{padding:5px 0;border-bottom:1px dashed var(--line)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.empty{color:var(--mut);text-align:center;padding:30px 10px}
+</style></head><body>
+<header><h1>TRUTHGUARD</h1><p>Ask a question. See which sources disagree, which one wins, and why.</p></header>
+<main>
+<aside>
+ <div class="card"><h2>Ask a question</h2>
+  <textarea id="q" rows="2">What is my meal allowance on a business trip?</textarea>
+  <div class="chips" id="chips"></div>
+  <label>Who is asking?</label>
+  <div class="seg" id="prof"><button data-p="regular" class="on">Regular employee</button><button data-p="summit">Sales Summit attendee</button></div>
+  <button class="go" id="run">Verify and answer</button>
+ </div>
+ <div class="card"><h2>Document corpus <span class="badge b-n" id="cnt"></span></h2>
+  <div class="tw"><table id="corp"></table></div>
+  <details style="margin-top:10px"><summary style="cursor:pointer;color:var(--navy)">Add a document live</summary>
+   <label>Title</label><input id="a_t" value="Finance Memo (Jul 2026)">
+   <div class="row2"><div><label>Topic</label><select id="a_topic"><option value="meal">Meal allowance</option><option value="hotel">Hotel limit</option><option value="leave">Casual leave</option></select></div>
+   <div><label>Value</label><input id="a_v" type="number" value="1500"></div></div>
+   <div class="row2"><div><label>Date</label><input id="a_d" type="date" value="2026-07-01"></div>
+   <div><label>Authority</label><select id="a_a"><option value="3">Global policy</option><option value="2">Official circular</option><option value="1" selected>Memo / FAQ</option></select></div></div>
+   <div class="row2"><div><label>Scope</label><select id="a_s"><option value="all">All employees</option><option value="summit">Summit attendees</option></select></div>
+   <div><label>Issuer</label><input id="a_i" value="Finance"></div></div>
+   <label>Supersedes (optional)</label><select id="a_sup"></select>
+   <button id="add" style="margin-top:10px;width:100%">Add to corpus</button>
+  </details>
+  <button id="reset" style="margin-top:8px;width:100%;font-size:13px">Reset corpus</button>
+ </div>
+</aside>
+<section>
+ <div class="card"><h2>Agent pipeline</h2><div class="pipe" id="pipe"></div></div>
+ <div id="out"><div class="card empty">Pick a question and press <b>Verify and answer</b>. Try the same meal question as both employee types, then the hotel question.</div></div>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const SEED=[
+{id:"HR-2022",title:"HR Policy v1 (2022)",topic:"meal",n:800,date:"2022-04-01",auth:3,scope:"all",issuer:"HR",sup:null,text:"Meal allowance on business travel is ₹800 per day."},
+{id:"HR-2024",title:"Global HR Policy (2024)",topic:"meal",n:1000,date:"2024-04-01",auth:3,scope:"all",issuer:"HR",sup:"HR-2022",text:"Meal allowance on business travel is ₹1,000 per day for all employees."},
+{id:"SUM-2026",title:"Sales Summit Memo (Mar 2026)",topic:"meal",n:3000,date:"2026-03-10",auth:1,scope:"summit",issuer:"Sales",sup:null,text:"Meal allowance during the Sales Summit is ₹3,000 per day."},
+{id:"FAQ-2025",title:"Intranet FAQ (Jun 2025)",topic:"meal",n:1200,date:"2025-06-15",auth:1,scope:"all",issuer:"IT Helpdesk",sup:null,text:"FAQ: the daily meal allowance on trips is ₹1,200."},
+{id:"FIN-2025",title:"Finance Circular (Feb 2025)",topic:"hotel",n:6000,date:"2025-02-01",auth:2,scope:"all",issuer:"Finance",sup:null,text:"Hotel limit is ₹6,000 per night for domestic travel."},
+{id:"OPS-2026",title:"Regional Ops Notice (Jan 2026)",topic:"hotel",n:7500,date:"2026-01-12",auth:2,scope:"all",issuer:"Regional Ops",sup:null,text:"Hotel limit is ₹7,500 per night for domestic travel."},
+{id:"LV-2024",title:"Leave Policy (2024)",topic:"leave",n:18,date:"2024-04-01",auth:3,scope:"all",issuer:"HR",sup:null,text:"Employees receive 18 days of casual leave per year."},
+{id:"LV-2025A",title:"Leave Amendment (Mar 2025)",topic:"leave",n:24,date:"2025-03-01",auth:3,scope:"all",issuer:"HR",sup:"LV-2024",text:"Amendment: casual leave is increased to 24 days per year."}];
+const T={meal:{name:"meal allowance",u:"₹/day",kw:["meal","food","allowance","per diem","eat","lunch","dinner"]},hotel:{name:"hotel limit",u:"₹/night",kw:["hotel","stay","lodging","accommodation","room","night"]},leave:{name:"casual leave",u:"days/year",kw:["leave","casual","vacation","holiday","days off"]}};
+const Q=["What is my meal allowance on a business trip?","What is the hotel limit for domestic travel?","How many casual leave days do I get?"];
+let corpus=[],profile="regular",busy=false;
+const AUTH={3:"Global policy",2:"Official circular",1:"Memo / FAQ"};
+const fmt=d=>T[d.topic].u.startsWith("₹")?"₹"+d.n.toLocaleString("en-IN")+T[d.topic].u.slice(1):d.n+" "+T[d.topic].u;
+const scopeL=s=>s==="all"?"All employees":"Summit attendees";
+const dt=s=>new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"});
+const sleep=ms=>new Promise(r=>setTimeout(r,matchMedia("(prefers-reduced-motion:reduce)").matches?0:ms));
+function load(){corpus=JSON.parse(JSON.stringify(SEED));drawCorpus()}
+function drawCorpus(){
+ $("#cnt").textContent=corpus.length+" docs";
+ $("#corp").innerHTML="<tr><th>Document</th><th>Value</th><th>Authority</th><th>Scope</th></tr>"+corpus.map(d=>`<tr><td>${d.title}<br><small style="color:var(--mut)">${d.sup?"supersedes "+d.sup:""}</small></td><td>${fmt(d)}</td><td>${AUTH[d.auth]}</td><td>${scopeL(d.scope)}</td></tr>`).join("");
+ $("#a_sup").innerHTML='<option value="">None</option>'+corpus.map(d=>`<option value="${d.id}">${d.title}</option>`).join("");
+}
+$("#chips").innerHTML=Q.map(q=>`<button>${q}</button>`).join("");
+$("#chips").onclick=e=>{if(e.target.tagName==="BUTTON")$("#q").value=e.target.textContent};
+$("#prof").onclick=e=>{const b=e.target.closest("button");if(!b)return;profile=b.dataset.p;[...$("#prof").children].forEach(x=>x.classList.toggle("on",x===b))};
+$("#reset").onclick=load;
+$("#add").onclick=()=>{const t=$("#a_topic").value,n=+$("#a_v").value;if(!$("#a_t").value||!n)return;
+ corpus.push({id:"NEW-"+(corpus.length+1),title:$("#a_t").value,topic:t,n,date:$("#a_d").value,auth:+$("#a_a").value,scope:$("#a_s").value,issuer:$("#a_i").value||"Unknown",sup:$("#a_sup").value||null,text:`${T[t].name} is ${n} (${T[t].u}).`});drawCorpus()};
+/* ---------- agents ---------- */
+function retrieve(q){
+ const ql=q.toLowerCase();let topic=null,best=0;
+ for(const k in T){const s=T[k].kw.filter(w=>ql.includes(w)).length;if(s>best){best=s;topic=k}}
+ const hits=corpus.map(d=>{const base=d.topic===topic?3:0,ov=ql.split(/\W+/).filter(w=>w.length>3&&d.text.toLowerCase().includes(w)).length;return{d,score:base+ov*.5}}).filter(x=>x.score>=1).sort((a,b)=>b.score-a.score);
+ return{topic,hits};
+}
+function synthesize(hits){ // naive: trusts the most recent passage
+ if(!hits.length)return null;
+ const d=[...hits].sort((a,b)=>b.d.date.localeCompare(a.d.date))[0].d;
+ return{d,text:`The ${T[d.topic].name} is ${fmt(d)} (from ${d.title}).`};
+}
+function critic(draft,docs){
+ const f=[];
+ const vals=[...new Set(docs.map(d=>d.n))];
+ if(vals.length>1)f.push({t:"contradiction",m:`${docs.length} passages disagree: ${docs.map(d=>fmt(d)).join(" vs ")}.`});
+ docs.forEach(d=>{const s=docs.find(x=>x.sup===d.id);if(s)f.push({t:"stale",m:`${d.title} is superseded by ${s.title}.`})});
+ if(draft.d.scope!=="all")f.push({t:"unsupported",m:`Draft states ${fmt(draft.d)} with no scope qualifier, but ${draft.d.title} applies only to ${scopeL(draft.d.scope).toLowerCase()}.`});
+ else if(docs.some(d=>d.n!==draft.d.n&&d.auth>draft.d.auth))f.push({t:"unsupported",m:`Draft ignores a higher-authority source that says otherwise.`});
+ return f;
+}
+function resolve(docs){
+ const steps=[],why={};let c=[...docs];
+ const sup=c.filter(d=>docs.some(x=>x.sup===d.id));
+ sup.forEach(d=>why[d.id]="Superseded by a newer document");
+ c=c.filter(d=>!sup.includes(d));
+ steps.push({r:"Supersession",ok:true,m:sup.length?`Removed ${sup.map(d=>d.id).join(", ")}`:"No superseded documents"});
+ const out=c.filter(d=>d.scope!=="all"&&d.scope!==profile);
+ out.forEach(d=>why[d.id]=`Scope: applies only to ${scopeL(d.scope).toLowerCase()}, not this employee`);
+ c=c.filter(d=>!out.includes(d));
+ steps.push({r:"Scope eligibility",ok:true,m:`Employee is “${profile==="summit"?"Sales Summit attendee":"Regular employee"}”${out.length?"; removed "+out.map(d=>d.id).join(", "):""}`});
+ const spec=c.filter(d=>d.scope!=="all");
+ if(spec.length&&c.length>spec.length){c.filter(d=>d.scope==="all").forEach(d=>why[d.id]="General rule overridden by a scope-specific rule that applies to this employee");c=spec}
+ steps.push({r:"Specificity",ok:true,m:spec.length?"Scope-specific rule beats general rule":"No scope-specific rule applies"});
+ const vals=new Set(c.map(d=>d.n));
+ if(vals.size>1){const top=Math.max(...c.map(d=>d.auth));const lo=c.filter(d=>d.auth<top);lo.forEach(d=>why[d.id]=`Lower authority (${AUTH[d.auth]}) than ${AUTH[top]}`);c=c.filter(d=>d.auth===top)}
+ steps.push({r:"Authority",ok:true,m:vals.size>1?"Highest authority level kept":"Not needed"});
+ if(new Set(c.map(d=>d.n)).size>1){
+  const issuers=new Set(c.map(d=>d.issuer));
+  if(issuers.size===1){const nw=c.sort((a,b)=>b.date.localeCompare(a.date))[0];c.filter(d=>d!==nw).forEach(d=>why[d.id]="Older document from the same issuer");c=[nw];steps.push({r:"Date",ok:true,m:"Same issuer, newest wins"})}
+  else{steps.push({r:"Date",ok:false,m:`Equal authority but different issuers (${[...issuers].join(" vs ")}); no supersession link. Date alone is not enough.`});return{status:"unresolved",cands:c,steps,why}}
+ }else steps.push({r:"Date",ok:true,m:"Not needed"});
+ return{status:"resolved",win:c[0],steps,why};
+}
+/* ---------- UI ---------- */
+const AG=[["Retriever","Keyword + topic search"],["Synthesizer","Drafts an answer"],["Critic / Adversary","Tries to break it"],["Resolution Engine","Authority, scope, date"],["Verified Answer","Cited result"]];
+function pipe(i,logs,flag){$("#pipe").innerHTML=AG.map((a,k)=>`<div class="ag ${k<i?(flag&&flag.includes(k)?"flag":"done"):k===i?"run":""}"><b>${a[0]}</b><small>${a[1]}</small><ul>${(logs[k]||[]).map(l=>`<li>${l}</li>`).join("")}</ul></div>`).join("")}
+async function run(){
+ if(busy)return;busy=true;$("#run").disabled=true;const q=$("#q").value.trim();const logs={};pipe(0,logs);$("#out").innerHTML="";
+ await sleep(600);const r=retrieve(q);
+ if(!r.hits.length){pipe(5,{0:["No relevant passages found"]});$("#out").innerHTML=`<div class="card"><span class="badge b-warn">Cannot answer</span><p>No document in the corpus covers this question, so TruthGuard will not guess.</p></div>`;busy=false;$("#run").disabled=false;return}
+ const docs=r.hits.map(h=>h.d);logs[0]=[`${docs.length} passages on “${T[r.topic].name}”`];pipe(1,logs);
+ await sleep(800);const dr=synthesize(r.hits);logs[1]=[`Draft: ${fmt(dr.d)}`,"Picked the newest passage"];pipe(2,logs);
+ await sleep(900);const f=critic(dr,docs);logs[2]=f.length?f.map(x=>x.t):["No issues found"];const flag=f.length?[2]:[];pipe(3,logs,flag);
+ await sleep(900);const res=resolve(docs);logs[3]=[res.status==="resolved"?"Conflict resolved":"Cannot resolve safely"];
+ pipe(4,logs,[...flag,...(res.status==="unresolved"?[3]:[])]);await sleep(600);pipe(5,logs,[...flag,...(res.status==="unresolved"?[3,4]:[])]);
+ render(q,docs,dr,f,res);busy=false;$("#run").disabled=false;
+}
+const row=(d,v,cls)=>`<tr><td>${d.title}</td><td>${fmt(d)}</td><td>${dt(d.date)}</td><td>${AUTH[d.auth]}</td><td>${scopeL(d.scope)}</td><td><span class="badge ${cls}">${v[0]}</span><br><small>${v[1]}</small></td></tr>`;
+function render(q,docs,dr,f,res){
+ let h="";
+ if(res.status==="resolved"){const w=res.win,others=docs.filter(d=>d!==w);
+  h+=`<div class="card"><span class="badge b-ok">Verified answer</span>
+  <div class="ans">${fmt(w)}</div>
+  <div>${T[w.topic].name[0].toUpperCase()+T[w.topic].name.slice(1)} for ${profile==="summit"?"a Sales Summit attendee":"a regular employee"}. Source: <b>${w.title}</b> (${AUTH[w.auth]}, ${dt(w.date)}).</div>
+  ${others.length?`<div class="find b-n" style="margin-top:10px">${others.map(d=>`${fmt(d)} from ${d.title} does not apply: ${res.why[d.id]||"not applicable"}.`).join("<br>")}</div>`:""}</div>`;
+ }else{
+  h+=`<div class="card"><span class="badge b-bad">Unresolved conflict: escalate</span>
+  <div class="ans">TruthGuard cannot safely pick one answer.</div>
+  <div>Sources of equal authority disagree and nothing in the corpus says which one replaces the other. Both positions:</div>
+  <div class="cmp" style="margin-top:10px">${res.cands.map(d=>`<div class="box badx"><b>${fmt(d)}</b><br>${d.title}<br><small>${d.issuer} · ${AUTH[d.auth]} · ${dt(d.date)}</small></div>`).join("")}</div>
+  <p style="margin-bottom:0"><b>Recommended action:</b> ask the policy owners to confirm which notice is in force.</p></div>`}
+ const naive=dr.d,same=res.status==="resolved"&&res.win===naive;
+ h+=`<div class="card"><h2>Basic RAG vs TruthGuard</h2><div class="cmp">
+ <div class="box ${same?"good":"badx"}"><span class="badge ${same?"b-ok":"b-bad"}">Basic RAG ${same?"(happens to match)":"(misleading)"}</span><p style="margin:8px 0 0">${dr.text} Stated with full confidence.</p></div>
+ <div class="box ${res.status==="resolved"?"good":"badx"}"><span class="badge ${res.status==="resolved"?"b-ok":"b-warn"}">TruthGuard</span><p style="margin:8px 0 0">${res.status==="resolved"?`${fmt(res.win)} from ${res.win.title}, with the conflict explained.`:"Flags the conflict and shows both sources."}</p></div></div></div>`;
+ h+=`<div class="card"><h2>Side-by-side conflict diff</h2><div class="tw"><table><tr><th>Source</th><th>Says</th><th>Date</th><th>Authority</th><th>Scope</th><th>Verdict</th></tr>${docs.map(d=>res.status==="resolved"?(d===res.win?row(d,["Applies","Highest-ranked applicable source"],"b-ok"):row(d,["Rejected",res.why[d.id]||"Not applicable"],"b-bad")):(res.cands.includes(d)?row(d,["Conflicting","Cannot rank against the other"],"b-warn"):row(d,["Rejected",res.why[d.id]||"Not applicable"],"b-bad"))).join("")}</table></div></div>`;
+ h+=`<div class="card"><h2>Critic findings</h2>${f.length?f.map(x=>`<div class="find ${x.t==="stale"?"b-warn":"b-bad"}"><b>${x.t==="contradiction"?"Contradiction":x.t==="stale"?"Stale source":"Unsupported claim"}:</b> ${x.m}</div>`).join(""):'<div class="find b-ok">No contradictions, stale sources or unsupported claims.</div>'}</div>`;
+ h+=`<div class="card"><h2>Resolution trace</h2><div class="tr">${res.steps.map(s=>`<div><span class="badge ${s.ok?"b-ok":"b-bad"}">${s.r}</span> ${s.m}</div>`).join("")}</div></div>`;
+ $("#out").innerHTML=h;
+}
+$("#run").onclick=run;load();pipe(0,{});$("#pipe").querySelectorAll(".ag").forEach(a=>a.classList.remove("run"));
+</script></body></html>
